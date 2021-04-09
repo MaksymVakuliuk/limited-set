@@ -13,7 +13,12 @@ public class LimitedSetImpl<T> implements LimitedSet<T> {
     @Override
     public void add(T t) {
         if (map.size() >= MAX_SIZE) {
-            findMinCheckedValue().ifPresent(map::remove);
+            Optional<T> minCheckedValue = findMinCheckedValue();
+            if (minCheckedValue.isPresent()) {
+                map.remove(minCheckedValue.get());
+            } else {
+                map.remove(null);
+            }
         }
         map.put(t, 0);
     }

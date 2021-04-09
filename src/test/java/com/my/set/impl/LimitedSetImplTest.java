@@ -16,6 +16,7 @@ public class LimitedSetImplTest {
 
     @Before
     public void before() {
+        limitedSet.add(null);
         for (int i = 0; i < 9; i++) {
             limitedSet.add(i);
         }
@@ -61,7 +62,8 @@ public class LimitedSetImplTest {
         try {
             Method method = limitedSet.getClass().getDeclaredMethod("findMinCheckedValue");
             method.setAccessible(true);
-            return (Integer) ((Optional) method.invoke(limitedSet)).get();
+            Optional invoke = (Optional) method.invoke(limitedSet);
+            return invoke.isPresent() ? (Integer) invoke.get() : null;
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
