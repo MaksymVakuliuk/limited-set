@@ -9,18 +9,17 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.Optional;
 
 public class LimitedSetImplTest {
     LimitedSetImpl<Integer> limitedSet = new LimitedSetImpl<>();
 
     @Before
     public void before() {
-        limitedSet.add(null);
         for (int i = 0; i < 9; i++) {
             limitedSet.add(i);
         }
     }
+
     @After
     public void after() {
         try {
@@ -39,10 +38,36 @@ public class LimitedSetImplTest {
         Assert.assertFalse(limitedSet.contains(number));
         limitedSet.add(number);
         Assert.assertTrue(limitedSet.contains(number));
+    }
+
+    @Test
+    public void addWithOverSize() {
         Integer minCheckedValue = findMinCheckedValue();
         limitedSet.add(46);
-        Assert.assertTrue(limitedSet.contains(46));
+        Assert.assertTrue(limitedSet.contains(minCheckedValue));
+        minCheckedValue = findMinCheckedValue();
+        limitedSet.add(38);
         Assert.assertFalse(limitedSet.contains(minCheckedValue));
+        Assert.assertTrue(limitedSet.contains(38));
+        Assert.assertTrue(limitedSet.contains(46));
+
+    }
+
+    @Test
+    public void addExistedValue() {
+        limitedSet.add(33);
+        limitedSet.contains(33);
+        limitedSet.contains(33);
+        Integer numberOfContains = getNumberOfContains(33);
+        limitedSet.add(33);
+        Assert.assertEquals(numberOfContains,getNumberOfContains(33));
+    }
+
+
+    @Test
+    public void addNull() {
+        limitedSet.add(null);
+        Assert.assertFalse(limitedSet.contains(null));
     }
 
     @Test
@@ -58,12 +83,23 @@ public class LimitedSetImplTest {
         Assert.assertFalse(limitedSet.contains(50));
     }
 
+    private <T> Integer getNumberOfContains(T t) {
+        try {
+            Field field  = limitedSet.getClass().getDeclaredField("map");
+            field.setAccessible(true);
+            HashMap<T, Integer> hashMap = (HashMap<T, Integer>) field.get(limitedSet);
+            return hashMap.get(t);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     private Integer findMinCheckedValue() {
         try {
             Method method = limitedSet.getClass().getDeclaredMethod("findMinCheckedValue");
             method.setAccessible(true);
-            Optional invoke = (Optional) method.invoke(limitedSet);
-            return invoke.isPresent() ? (Integer) invoke.get() : null;
+            return (Integer) method.invoke(limitedSet);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }

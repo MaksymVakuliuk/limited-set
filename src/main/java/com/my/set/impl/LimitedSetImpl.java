@@ -4,7 +4,6 @@ import com.my.set.LimitedSet;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class LimitedSetImpl<T> implements LimitedSet<T> {
     private static final int MAX_SIZE = 10;
@@ -12,15 +11,15 @@ public class LimitedSetImpl<T> implements LimitedSet<T> {
 
     @Override
     public void add(T t) {
-        if (map.size() >= MAX_SIZE) {
-            Optional<T> minCheckedValue = findMinCheckedValue();
-            if (minCheckedValue.isPresent()) {
-                map.remove(minCheckedValue.get());
-            } else {
-                map.remove(null);
-            }
+        if (t == null) {
+            return;
         }
-        map.put(t, 0);
+        if (map.size() >= MAX_SIZE) {
+            map.remove(findMinCheckedValue());
+        }
+        if (!map.containsKey(t)) {
+            map.put(t, 0);
+        }
     }
 
     @Override
@@ -37,10 +36,11 @@ public class LimitedSetImpl<T> implements LimitedSet<T> {
         return false;
     }
 
-    private Optional<T> findMinCheckedValue() {
+    private T findMinCheckedValue() {
         return map.entrySet()
                 .stream()
                 .min(Comparator.comparingInt(Map.Entry::getValue))
-                .map(Map.Entry::getKey);
+                .map(Map.Entry::getKey)
+                .get();
     }
 }
