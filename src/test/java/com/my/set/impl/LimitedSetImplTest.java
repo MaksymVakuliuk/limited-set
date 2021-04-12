@@ -15,7 +15,7 @@ public class LimitedSetImplTest {
 
     @Before
     public void before() {
-        for (int i = 0; i < 9; i++) {
+        for (int i = 1; i < 9; i++) {
             limitedSet.add(i);
         }
     }
@@ -40,10 +40,23 @@ public class LimitedSetImplTest {
         Assert.assertTrue(limitedSet.contains(number));
     }
 
+
+    @Test
+    public void addExistedValueToFullSet() {
+        limitedSet.add(9);
+        limitedSet.add(10);
+        limitedSet.contains(2);
+        Integer numberOfContains = getNumberOfContains(2);
+        limitedSet.add(2);
+        Assert.assertEquals(numberOfContains, getNumberOfContains(2));
+    }
+
+
     @Test
     public void addWithOverSize() {
         Integer minCheckedValue = findMinCheckedValue();
         limitedSet.add(46);
+        limitedSet.add(47);
         Assert.assertTrue(limitedSet.contains(minCheckedValue));
         minCheckedValue = findMinCheckedValue();
         limitedSet.add(38);

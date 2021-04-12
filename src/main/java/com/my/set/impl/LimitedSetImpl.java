@@ -14,10 +14,10 @@ public class LimitedSetImpl<T> implements LimitedSet<T> {
         if (t == null) {
             return;
         }
-        if (map.size() >= MAX_SIZE) {
-            map.remove(findMinCheckedValue());
-        }
         if (!map.containsKey(t)) {
+            if (map.size() >= MAX_SIZE) {
+                map.remove(findMinCheckedValue());
+            }
             map.put(t, 0);
         }
     }
